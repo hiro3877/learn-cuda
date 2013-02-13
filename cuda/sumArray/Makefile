@@ -1,2 +1,2 @@
 all :
-	nvcc -arch sm_20 sumArrayOnHost.cu -o sumArrayOnHost.out
+	nvcc -arch sm_20 sumArraysOnHost.cu -o sumArraysOnHost.out
