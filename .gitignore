@@ -31,3 +31,8 @@
 *.out
 *.app
 
+# add
+*.bmp
+*.txt
+*.bin
+*.dat
