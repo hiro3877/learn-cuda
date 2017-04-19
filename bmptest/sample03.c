@@ -1,31 +1,32 @@
 #include <stdio.h>
 #include <math.h>
+#include<stdint.h>
 
 
 #pragma pack(push,1)
 typedef struct tagBITMAPFILEHEADER
 {
 	unsigned short bfType;
-	unsigned long  bfSize;
+	uint32_t  bfSize;
 	unsigned short bfReserved1;
 	unsigned short bfReserved2;
-	unsigned long  bf0ffBits;
+	uint32_t  bf0ffBits;
 }BITMAPFILEHEADER;
 #pragma pack(pop)
 
 typedef struct tagBITMAPINFOHEADER 
 {
-	unsigned long   biSize;
-	long			biWidth;
-	long			biHeight;
+	uint32_t   biSize;
+	uint32_t			biWidth;
+	uint32_t			biHeight;
 	unsigned short  biPlanes;
 	unsigned short  biBitCount;
-	unsigned long   biCompression;
-	unsigned long   biSizeImage;
-	long			biXPelsPerMeter;
-	long			biYPelsPerMeter;
-	unsigned long   biCirUsed;
-	unsigned long   biCirImportant;
+	uint32_t   biCompression;
+	uint32_t   biSizeImage;
+	uint32_t			biXPelsPerMeter;
+	uint32_t			biYPelsPerMeter;
+	uint32_t   biCirUsed;
+	uint32_t   biCirImportant;
 }BITMAPINFOHEADER;
 
 typedef struct tagRGBQUAD
