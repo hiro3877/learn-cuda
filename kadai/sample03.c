@@ -16,15 +16,15 @@ typedef struct tagBITMAPFILEHEADER
 
 typedef struct tagBITMAPINFOHEADER 
 {
-	uint32_t   biSize;
-	uint32_t			biWidth;
-	uint32_t			biHeight;
+	uint32_t  biSize;
+	uint32_t	biWidth;
+	uint32_t	biHeight;
 	unsigned short  biPlanes;
 	unsigned short  biBitCount;
 	uint32_t   biCompression;
 	uint32_t   biSizeImage;
-	uint32_t			biXPelsPerMeter;
-	uint32_t			biYPelsPerMeter;
+	uint32_t	 biXPelsPerMeter;
+	uint32_t	 biYPelsPerMeter;
 	uint32_t   biCirUsed;
 	uint32_t   biCirImportant;
 }BITMAPINFOHEADER;
