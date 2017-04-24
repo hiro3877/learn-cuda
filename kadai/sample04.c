@@ -63,7 +63,7 @@ int main(){
     BmpInfoHeader.biWidth               =256;
     BmpInfoHeader.biHeight              =256;
     BmpInfoHeader.biPlanes              =1;
-    BmpInfoHeader.biBitCount            =8;     //256ŠK’²
+    BmpInfoHeader.biBitCount            =8;     
     BmpInfoHeader.biCompression         =0L;
     BmpInfoHeader.biSizeImage           =0L;
     BmpInfoHeader.biXPelsPerMeter       =0L;
