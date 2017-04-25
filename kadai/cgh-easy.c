@@ -61,21 +61,18 @@ double getrusage_sec()
 }
 
 
-
-double distance_horo_objects(int xj,int yj,double zj,int xa,int ya){
-  double r_ja;
+float distance_horo_objects_easy(int xj,int yj,float zj,int xa,int ya){
+  float r_ja;
   int dx;
   int dy;
 
   dx=xa-xj;
   dy=ya-yj;
 
-  r_ja=sqrt(dx*dx+dy*dy+zj*zj); //暗黙の型変換　doubleで計算されてるはず
-
+  r_ja=(dx*dx+dy*dy)/zj;
 
   return r_ja;
 }
-
 
 int main(){
 
@@ -129,7 +126,7 @@ int main(){
 
     int x[tensuu];
     int y[tensuu];
-    double z[tensuu];
+    float z[tensuu];
 
     int x_buf,y_buf,z_buf;
 
@@ -140,7 +137,7 @@ int main(){
 
       x[i]=x_buf*40+960;
       y[i]=y_buf*40+540;
-      z[i]=((double)z_buf)*40+100000.0;
+      z[i]=((float)z_buf)*40+100000.0;
     }
     fclose(fp);
 
@@ -150,32 +147,32 @@ int main(){
     }
     */
 
-    double *img_buf;
+    float *img_buf;
 
-    img_buf=(double *)malloc(sizeof(double)*WID*HEI);
+    img_buf=(float *)malloc(sizeof(float)*WID*HEI);
     for(i=0;i<WID*HEI;i++){
       img_buf[i]=0.0;
     }
 
 
-    double kankaku,hatyou,goukei;
+    float hatyou,goukei;
 
-    hatyou=0.633;
-    kankaku=10.5;
-    goukei=2.0*M_PI*kankaku/hatyou;
+    hatyou=0.0633;
+    goukei=M_PI/hatyou;
+
 
 
 starttime1 = getrusage_sec();
     for(i=0;i<HEI;i++){
       for(j=0;j<WID;j++){
         for(k=0;k<tensuu;k++){
-          img_buf[i*WID+j]=img_buf[i*WID+j]+cos(goukei*distance_horo_objects(x[k],y[k],z[k],j,i));
+          img_buf[i*WID+j]=img_buf[i*WID+j]+cos(goukei*distance_horo_objects_easy(x[k],y[k],z[k],j,i));
         }
       }
     }
 endtime1 = getrusage_sec();
 
-    double min,max,mid;
+    float min,max,mid;
 
     min=img_buf[0];
     max=img_buf[0];
@@ -209,7 +206,7 @@ endtime1 = getrusage_sec();
     }
 
     FILE *fp1;
-    fp1=fopen("cgh_root.bmp","wb");
+    fp1=fopen("cgh_easy.bmp","wb");
     if(fp1==NULL){
       printf("ファイルオープンエラー\n");
     }
