@@ -14,17 +14,17 @@ typedef struct tagBITMAPFILEHEADER
 }BITMAPFILEHEADER;
 #pragma pack(pop)
 
-typedef struct tagBITMAPINFOHEADER 
+typedef struct tagBITMAPINFOHEADER
 {
 	uint32_t  biSize;
-	uint32_t	biWidth;
-	uint32_t	biHeight;
+	int32_t	biWidth;
+	int32_t	biHeight;
 	unsigned short  biPlanes;
 	unsigned short  biBitCount;
 	uint32_t   biCompression;
 	uint32_t   biSizeImage;
-	uint32_t	 biXPelsPerMeter;
-	uint32_t	 biYPelsPerMeter;
+	int32_t	 biXPelsPerMeter;
+	int32_t	 biYPelsPerMeter;
 	uint32_t   biCirUsed;
 	uint32_t   biCirImportant;
 }BITMAPINFOHEADER;
@@ -44,7 +44,7 @@ typedef struct tagBITMAPINFO
 }BITMAPINFO;
 
 int main(){
-    
+
     BITMAPFILEHEADER    BmpFileHeader;
     BITMAPINFOHEADER    BmpInfoHeader;
     RGBQUAD             RGBQuad[256];
@@ -61,7 +61,7 @@ int main(){
     BmpFileHeader.bfReserved2           =0;
     BmpFileHeader.bf0ffBits             =14+40+1024;
 
-    BmpInfoHeader.biSize                =40;   
+    BmpInfoHeader.biSize                =40;
     BmpInfoHeader.biWidth               =256;
     BmpInfoHeader.biHeight              =256;
     BmpInfoHeader.biPlanes              =1;

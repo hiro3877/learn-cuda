@@ -6,9 +6,9 @@ int main(void)
 	FILE *fp;
 	int inbuf[285]={};
 	int i;
-	
+
 	char filename[100]={};
-	
+
 	printf("Please input filename : ");
 	scanf("%s",filename);
 
@@ -31,7 +31,7 @@ int main(void)
 	for (i=0; i<285; i++)
 		printf("%7d",inbuf[i]);
 	printf("\n");
-	
+
 	printf("%d\n",i);
 
 	return 0;
