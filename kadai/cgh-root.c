@@ -219,7 +219,7 @@ endtime1 = getrusage_sec();
     fwrite(&RGBQuad[0], sizeof(RGBQuad[0]) , 256 ,fp1);
     fwrite(img,sizeof(unsigned char),WID*HEI,fp1);
 
-    printf("%lf\n",endtime1-starttime1);
+    printf("Calculation time is %lf\n",endtime1-starttime1);
 
     free(img);
     free(img_buf);
