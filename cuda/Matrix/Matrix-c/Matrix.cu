@@ -1,5 +1,7 @@
 #include<stdio.h>
 #include<math.h>
+#include<time.h>
+
 
 #define N 256
 
@@ -17,6 +19,7 @@ void matrix_vecter_multi_cpu(float *A,float *B,float *C){
 int main(){
   int i,j;
   float A[N],B[N*N],C[N];
+  clock_t start,end;
 
   for(j=0;j<N;j++){
     for(i=0;i<N;i++){
@@ -28,11 +31,15 @@ int main(){
     C[j]=1.0F;
   }
 
+  start=clock();
   matrix_vecter_multi_cpu(A,B,C);
+  end=clock();
 
   for(j=0;j<N;j++){
     printf("A[ %d ]=%f \n",j,A[j]);
   }
+
+  printf("Calculation time is %lf\n",(double)(end-start)/CLOCKS_PER_SEC);
 
   return 0;
 
