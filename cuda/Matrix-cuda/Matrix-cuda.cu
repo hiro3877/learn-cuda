@@ -4,11 +4,11 @@
 
 #define N 256
 
-__global__ void matrix_vecter_multi_gpu_1_1(float *A_d,float *B_d,float *C_d){
+__global__ void matrix_vector_multi_gpu_1_1(float *A_d,float *B_d,float *C_d){
   int i,j;
 
   for(j=0;j<N;j++){
-    A_d[j]=0.0F;
+    A_d[j]=0.0;
     for(i=0;i<N;i++){
       A_d[j]=A_d[j]+B_d[j*N+i]*C_d[i];
     }
@@ -41,9 +41,9 @@ int main(){
   cudaMemcpy(B_d,B,N*N*sizeof(float),cudaMemcpyHostToDevice);
   cudaMemcpy(C_d,C,N*sizeof(float),cudaMemcpyHostToDevice);
 
-  matrix_vecter_multi_gpu_1_1<<<blocks,threads>>>(A_d,B_d,C_d);
+  matrix_vector_multi_gpu_1_1<<<blocks,threads>>>(A_d,B_d,C_d);
 
-  cudaMemcpy(A_d,A,N*sizeof(float),cudaMemcpyDeviceToHost);
+  cudaMemcpy(A,A_d,N*sizeof(float),cudaMemcpyDeviceToHost);
 
   for(j=0;j<N;j++){
     printf("A[ %d ]=%f \n",j,A[j]);
