@@ -55,15 +55,14 @@ __global__ void distance_gpu(int *x_d,int *y_d,double *z_d,double *img_buf_d,int
 
   i=blockIdx.x*128+threadIdx.x;
 
-  double kankaku,hatyou,goukei;
+  double hatyou,goukei;
 
-  hatyou=0.633;
-  kankaku=10.5;
-  goukei=2.0*M_PI*kankaku/hatyou;
+  hatyou=0.0633;
+  goukei=M_PI/hatyou;
 
   for(j=0;j<WID;j++){
     for(k=0;k<*tensuu_d;k++){
-      img_buf_d[i*WID+j]=img_buf_d[i*WID+j]+cos(goukei*sqrt((j-x_d[k])*(j-x_d[k])+(i-y_d[k])*(i-y_d[k])+z_d[k]*z_d[k]));
+      img_buf_d[i*WID+j]=img_buf_d[i*WID+j]+cos(goukei*((j-x_d[k])*(j-x_d[k])+(i-y_d[k])*(i-y_d[k]))/z_d[k]);
     }
   }
 }
@@ -207,7 +206,7 @@ int main(){
     }
 
     FILE *fp1;
-    fp1=fopen("cgh_root_gpu.bmp","wb");
+    fp1=fopen("cgh_fresnel_gpu.bmp","wb");
     if(fp1==NULL){
       printf("ファイルオープンエラー\n");
     }
@@ -220,6 +219,13 @@ int main(){
     free(img);
     free(img_buf);
     fclose(fp1);
+
+    cudaFree(tensuu_d);
+    cudaFree(x_d);
+    cudaFree(y_d);
+    cudaFree(z_d);
+    cudaFree(img_buf_d);
+
 
     return 0;
 
