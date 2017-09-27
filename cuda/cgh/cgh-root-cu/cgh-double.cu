@@ -2,11 +2,11 @@
 #include <math.h>
 #include<stdint.h>
 #include<stdlib.h>
-#include <sys/time.h>
-#include <sys/resource.h>
+#include<cuda.h>
 
-#define WID 1920
-#define HEI 1080
+
+#define WID 1024
+#define HEI 1024
 
 #pragma pack(push,1)
 typedef struct tagBITMAPFILEHEADER
@@ -49,21 +49,34 @@ typedef struct tagBITMAPINFO
 }BITMAPINFO;
 
 
-double getrusage_sec()
+__global__ void distance_gpu(int *x_d,int *y_d,double *z_d,double *img_buf_d,int *tensuu_d)
 {
-    struct rusage t;
-    struct timeval tv;
+  int i,j,k;
 
-    getrusage(RUSAGE_SELF,&t);
-    tv = t.ru_utime;
+  i=blockIdx.x*128+threadIdx.x;
 
-    return tv.tv_sec + (double)tv.tv_usec*1e-6;
+  double kankaku,hatyou,goukei,pi;
+
+  hatyou=0.633;
+  kankaku=10.5;
+  pi=3.14159265;
+  goukei=2.0*pi*kankaku/hatyou;
+
+  double dx,dy,tmp;
+
+  for(j=0;j<WID;j++){
+    tmp=0.0;
+    for(k=0;k<*tensuu_d;k++){
+      dx=(double)(x_d[k]-j);
+      dy=(double)(y_d[k]-i);
+      tmp=tmp+cos(goukei*sqrt(dx*dx+dy*dy+z_d[k]*z_d[k]));
+    }
+  img_buf_d[i*WID+j] = tmp;
+  }
 }
 
 
 int main(){
-
-    double starttime1,endtime1;
 
     int tensuu;
 
@@ -72,7 +85,7 @@ int main(){
     RGBQUAD             RGBQuad[256];
 
     FILE *fp;
-    int i,j,k;
+    int i,j;
 
     BmpFileHeader.bfType                =19778;
     BmpFileHeader.bfSize                =14+40+1024+(WID*HEI);
@@ -113,7 +126,19 @@ int main(){
 
     int x[tensuu];
     int y[tensuu];
-    float z[tensuu];
+    double z[tensuu];
+
+    int *tensuu_d;
+
+    cudaMalloc((void**)&tensuu_d,sizeof(int));
+    cudaMemcpy(tensuu_d,&tensuu,sizeof(int),cudaMemcpyHostToDevice);
+
+    int *x_d,*y_d;
+    double *z_d;
+    double *img_buf_d;
+
+    dim3 blocks(8,1,1);
+    dim3 threads(128,1,1);
 
     int x_buf,y_buf,z_buf;
 
@@ -122,48 +147,40 @@ int main(){
       fread(&y_buf,sizeof(int),1,fp);
       fread(&z_buf,sizeof(int),1,fp);
 
-      x[i]=x_buf*40+960;
-      y[i]=y_buf*40+540;
-      z[i]=((float)z_buf)*40+100000.0F;
+      x[i]=x_buf*40+512;
+      y[i]=y_buf*40+512;
+      z[i]=((double)z_buf)*40+100000.0;
     }
     fclose(fp);
 
-    /*
-    for(i=0;i<tensuu;i++){
-      printf("%d   %d   %d   %f\n",i,x[i],y[i],z[i]);
+
+    cudaMalloc((void**)&x_d,tensuu*sizeof(int));
+    cudaMalloc((void**)&y_d,tensuu*sizeof(int));
+    cudaMalloc((void**)&z_d,tensuu*sizeof(double));
+
+    cudaMalloc((void**)&img_buf_d,WID*HEI*sizeof(double));
+
+    double *img_buf;
+
+    img_buf=(double *)malloc(sizeof(double)*WID*HEI);
+    for(i=0;i<WID*HEI;i++){
+      img_buf[i]=0.0;
     }
-    */
 
-    float *img_buf;
+    cudaMemcpy(x_d,x,tensuu*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(y_d,y,tensuu*sizeof(int),cudaMemcpyHostToDevice);
+    cudaMemcpy(z_d,z,tensuu*sizeof(double),cudaMemcpyHostToDevice);
 
-    img_buf=(float *)malloc(sizeof(float)*WID*HEI);
+    cudaMemcpy(img_buf_d,img_buf,WID*HEI*sizeof(double),cudaMemcpyHostToDevice);
 
+    distance_gpu<<<blocks,threads>>>(x_d,y_d,z_d,img_buf_d,tensuu_d);
 
-    float pi, kankaku,hatyou,goukei;
-
-    pi=3.14159265F;
-    hatyou=0.633F;
-    kankaku=10.5F;
-    goukei=2.0F*pi*kankaku/hatyou;
-
-   float dx,dy;
+    cudaMemcpy(img_buf,img_buf_d,WID*HEI*sizeof(double),cudaMemcpyDeviceToHost);
 
 
-starttime1 = getrusage_sec();
-    for(i=0;i<HEI;i++){
-      for(j=0;j<WID;j++){
-	img_buf[i*WID+j]=0.0F;
-        for(k=0;k<tensuu;k++){
-	 dx=(float)(x[k]-j);
-	 dy=(float)(x[k]-i);
-	 img_buf[i*WID+j]=img_buf[i*WID+j]+cos(goukei*0.5F*(dx*dx+dy*dy)/z[k]);
-         // img_buf[i*WID+j]=img_buf[i*WID+j]+cos(goukei*sqrt(dx*dx+dy*dy+z[k]*z[k]));
-        }
-      }
-    }
-endtime1 = getrusage_sec();
 
-    float min,max,mid;
+
+    double min,max,mid;
 
     min=img_buf[0];
     max=img_buf[0];
@@ -179,7 +196,7 @@ endtime1 = getrusage_sec();
       }
     }
 
-    mid=0.5*(min+max);
+    mid=0.5F*(min+max);
 
     printf("min = %lf  max = %lf  mid = %lf\n",min,max,mid);
 
@@ -197,7 +214,7 @@ endtime1 = getrusage_sec();
     }
 
     FILE *fp1;
-    fp1=fopen("cgh_root.bmp","wb");
+    fp1=fopen("cgh_root_gpu.bmp","wb");
     if(fp1==NULL){
       printf("ファイルオープンエラー\n");
     }
@@ -207,11 +224,16 @@ endtime1 = getrusage_sec();
     fwrite(&RGBQuad[0], sizeof(RGBQuad[0]) , 256 ,fp1);
     fwrite(img,sizeof(unsigned char),WID*HEI,fp1);
 
-    printf("Calculation time is %lf\n",endtime1-starttime1);
-
     free(img);
     free(img_buf);
     fclose(fp1);
+
+    cudaFree(tensuu_d);
+    cudaFree(x_d);
+    cudaFree(y_d);
+    cudaFree(z_d);
+    cudaFree(img_buf_d);
+
 
     return 0;
 
